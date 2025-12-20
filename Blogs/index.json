@@ -1,8 +1,7 @@
-[
-  "Trains.txt",
-  "Charu.txt",
-  "Interview.txt"
-]
+{
+ "Trains": "Trains.txt",
+  "Interview":"Interview.txt"
+}
 
 
 
