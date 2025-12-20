@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <title>Dheeraj’s World</title>
 
+
+const sectionMap = {
+  poetry: "Poetry",
+  science: "Science",
+  music: "Music",
+  blog: "Blogs",
+  about: "about"
+};
+  
 <style>
 html, body {
   margin: 0;
@@ -180,7 +189,8 @@ function openSection(label) {
   label.style.transform = "translateX(-50%) scale(1.4)";
 
   reader.style.display = "block";
-  loadIndex(label.id);
+  loadIndex(sectionMap[label.id]);
+;
 }
 
 function loadIndex(section) {
@@ -297,3 +307,4 @@ back.onclick = () => {
 
 </body>
 </html>
+
