@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Dheeraj’s World</title>
 
-  
 <style>
 html, body {
   margin: 0;
@@ -17,7 +16,7 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
-/* ---------- BACKGROUND (IMMUTABLE) ---------- */
+/* ---------- BACKGROUND ---------- */
 #background {
   position: fixed;
   inset: 0;
@@ -25,14 +24,14 @@ html, body {
   z-index: 0;
 }
 
-/* ---------- WORLD LAYER ---------- */
+/* ---------- WORLD ---------- */
 #world {
   position: fixed;
   inset: 0;
   z-index: 1;
 }
 
-/* ---------- CENTER INTRO ---------- */
+/* ---------- CENTER ---------- */
 #center {
   position: absolute;
   top: 50%;
@@ -53,7 +52,7 @@ html, body {
   font-size: 2rem;
   color: rgba(180,230,255,0.8);
   cursor: pointer;
-  transition: all 0.6s ease;
+  transition: all 0.5s ease;
 }
 
 .label:hover {
@@ -62,13 +61,12 @@ html, body {
   text-shadow: 0 0 18px rgba(200,240,255,0.7);
 }
 
-/* Original positions */
+/* Positions */
 #poetry  { top: 27%; left: 18%; }
 #science { top: 27%; right: 18%; }
 #music   { bottom: 30%; left: 19%; }
 #blog    { bottom: 30%; right: 20%; }
 
-/* About Me */
 #about {
   bottom: 12%;
   left: 50%;
@@ -112,17 +110,31 @@ pre {
   color: #bcd6ff;
 }
 
-/* Back */
-#back {
+/* Back + Download */
+#back, #download {
   position: absolute;
   top: 6%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+#back {
   left: 50%;
   transform: translateX(-50%);
-  font-size: 1rem;
-  cursor: pointer;
-  opacity: 0.6;
 }
-#back:hover { opacity: 1; }
+
+#download {
+  right: 6%;
+  border: 1px solid rgba(200,230,255,0.3);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+#back:hover, #download:hover {
+  opacity: 1;
+  background: rgba(200,230,255,0.1);
+}
 </style>
 </head>
 
@@ -145,11 +157,12 @@ pre {
 
 <div id="reader">
   <div id="back">← back</div>
+  <div id="download">⬇ Download</div>
   <div id="reader-content"></div>
 </div>
 
 <script>
-/* ---------- SECTION → FOLDER MAP ---------- */
+/* ---------- MAP UI → FOLDER ---------- */
 const sectionMap = {
   poetry: "Poetry",
   science: "Science",
@@ -163,21 +176,23 @@ const labels = document.querySelectorAll(".label");
 const reader = document.getElementById("reader");
 const content = document.getElementById("reader-content");
 const back = document.getElementById("back");
+const downloadBtn = document.getElementById("download");
 const center = document.getElementById("center");
 
-/* ---------- STORE ORIGINAL POSITIONS ---------- */
+/* ---------- STORE POSITIONS ---------- */
 const originalPos = {};
-labels.forEach(label => {
-  originalPos[label.id] = {
-    top: label.style.top,
-    left: label.style.left,
-    right: label.style.right,
-    bottom: label.style.bottom,
-    transform: label.style.transform
+labels.forEach(l => {
+  originalPos[l.id] = {
+    top: l.style.top,
+    left: l.style.left,
+    right: l.style.right,
+    bottom: l.style.bottom,
+    transform: l.style.transform
   };
-
-  label.addEventListener("click", () => openSection(label));
+  l.addEventListener("click", () => openSection(l));
 });
+
+let currentFilePath = null;
 
 /* ---------- OPEN SECTION ---------- */
 function openSection(label) {
@@ -194,35 +209,28 @@ function openSection(label) {
   label.style.transform = "translateX(-50%) scale(1.4)";
 
   reader.style.display = "block";
+  downloadBtn.style.display = "none";
 
   const folder = sectionMap[label.id];
-  if (!folder) {
-    content.innerHTML = "Section not found.";
-    return;
-  }
-
   loadIndex(folder);
 }
 
-/* ---------- LOAD INDEX.JSON ---------- */
+/* ---------- LOAD INDEX ---------- */
 function loadIndex(folder) {
   content.innerHTML = "Loading...";
-
   fetch(`${folder}/index.json`)
-    .then(res => res.json())
+    .then(r => r.json())
     .then(files => {
       content.innerHTML = "";
-      files.forEach((file, i) => {
-        const div = document.createElement("div");
-        div.className = "file-link";
-        div.textContent = `${i + 1}. ${file}`;
-        div.onclick = () => loadFile(folder, file);
-        content.appendChild(div);
+      files.forEach((f, i) => {
+        const d = document.createElement("div");
+        d.className = "file-link";
+        d.textContent = `${i + 1}. ${f}`;
+        d.onclick = () => loadFile(folder, f);
+        content.appendChild(d);
       });
     })
-    .catch(() => {
-      content.innerHTML = "No content found.";
-    });
+    .catch(() => content.innerHTML = "No content found.");
 }
 
 /* ---------- LOAD FILE ---------- */
@@ -230,93 +238,89 @@ function loadFile(folder, file) {
   const ext = file.split(".").pop().toLowerCase();
   const path = `${folder}/${file}`;
 
-  const isLocal =
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1" ||
-    location.protocol === "file:";
+  currentFilePath = path;
+  downloadBtn.style.display = "block";
+  downloadBtn.onclick = () => {
+    const a = document.createElement("a");
+    a.href = path;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   /* TEXT */
   if (["txt", "md"].includes(ext)) {
-    fetch(path).then(r => r.text()).then(text => {
-      content.innerHTML = `<pre>${text}</pre>`;
+    fetch(path).then(r => r.text()).then(t => {
+      content.innerHTML = `<pre>${t}</pre>`;
     });
     return;
   }
 
   /* CSV */
   if (ext === "csv") {
-    fetch(path).then(r => r.text()).then(text => {
-      const rows = text.split("\n").map(r => r.split(","));
-      let html = "<table style='width:100%; border-collapse:collapse;'>";
-      rows.forEach((row, i) => {
-        html += "<tr>";
-        row.forEach(cell => {
-          html += `<${i === 0 ? "th" : "td"} style="border:1px solid rgba(255,255,255,0.2); padding:6px;">${cell}</${i === 0 ? "th" : "td"}>`;
+    fetch(path).then(r => r.text()).then(t => {
+      const rows = t.split("\n").map(r => r.split(","));
+      let h = "<table style='width:100%; border-collapse:collapse;'>";
+      rows.forEach((row,i)=>{
+        h+="<tr>";
+        row.forEach(c=>{
+          h+=`<${i===0?"th":"td"} style="border:1px solid rgba(255,255,255,0.2); padding:6px;">${c}</${i===0?"th":"td"}>`;
         });
-        html += "</tr>";
+        h+="</tr>";
       });
-      html += "</table>";
-      content.innerHTML = html;
+      h+="</table>";
+      content.innerHTML = h;
     });
     return;
   }
 
-  /* IMAGES */
-  if (["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) {
+  /* MEDIA */
+  if (["png","jpg","jpeg","gif","webp"].includes(ext)) {
     content.innerHTML = `<img src="${path}" style="max-width:100%; max-height:80vh;">`;
     return;
   }
 
-  /* AUDIO */
-  if (["mp3", "wav", "ogg"].includes(ext)) {
-    content.innerHTML = `
-      <audio controls autoplay style="width:100%;">
-        <source src="${path}">
-      </audio>`;
+  if (["mp3","wav","ogg"].includes(ext)) {
+    content.innerHTML = `<audio controls autoplay style="width:100%;"><source src="${path}"></audio>`;
     return;
   }
 
-  /* VIDEO */
-  if (["mp4", "webm"].includes(ext)) {
-    content.innerHTML = `
-      <video controls autoplay style="max-width:100%; max-height:80vh;">
-        <source src="${path}">
-      </video>`;
+  if (["mp4","webm"].includes(ext)) {
+    content.innerHTML = `<video controls autoplay style="max-width:100%; max-height:80vh;"><source src="${path}"></video>`;
     return;
   }
 
-  /* PDF */
   if (ext === "pdf") {
     content.innerHTML = `<iframe src="${path}" style="width:100%; height:80vh;"></iframe>`;
     return;
   }
 
-  /* OFFICE FILES */
-  if (["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(ext)) {
-    if (isLocal) {
-      window.open(path, "_blank");
-    } else {
-      const viewer =
-        "https://docs.google.com/gview?embedded=true&url=" +
-        encodeURIComponent(location.origin + "/" + path);
-      content.innerHTML = `<iframe src="${viewer}" style="width:100%; height:80vh;"></iframe>`;
-    }
+  /* OFFICE → GOOGLE VIEWER */
+  if (["doc","docx","xls","xlsx","ppt","pptx"].includes(ext)) {
+    const viewer =
+      "https://docs.google.com/gview?embedded=true&url=" +
+      encodeURIComponent(location.origin + "/" + path);
+    content.innerHTML = `<iframe src="${viewer}" style="width:100%; height:80vh;"></iframe>`;
     return;
   }
 
-  /* FALLBACK */
   window.open(path, "_blank");
 }
 
-/* ---------- BACK BUTTON ---------- */
+/* ---------- BACK ---------- */
 back.onclick = () => {
   reader.style.display = "none";
   content.innerHTML = "";
   center.style.display = "block";
+  downloadBtn.style.display = "none";
 
-  labels.forEach(label => {
-    label.style.display = "block";
-    Object.assign(label.style, originalPos[label.id]);
+  labels.forEach(l => {
+    l.style.display = "block";
+    Object.assign(l.style, originalPos[l.id]);
   });
 };
 </script>
+
+</body>
+</html>
