@@ -149,6 +149,7 @@ pre {
 </div>
 
 <script>
+/* ---------- SECTION → FOLDER MAP ---------- */
 const sectionMap = {
   poetry: "Poetry",
   science: "Science",
@@ -156,25 +157,29 @@ const sectionMap = {
   blog: "Blogs",
   about: "about"
 };
-  
+
+/* ---------- ELEMENTS ---------- */
 const labels = document.querySelectorAll(".label");
 const reader = document.getElementById("reader");
 const content = document.getElementById("reader-content");
 const back = document.getElementById("back");
 const center = document.getElementById("center");
 
+/* ---------- STORE ORIGINAL POSITIONS ---------- */
 const originalPos = {};
-labels.forEach(l => {
-  originalPos[l.id] = {
-    top: l.style.top,
-    left: l.style.left,
-    right: l.style.right,
-    bottom: l.style.bottom,
-    transform: l.style.transform
+labels.forEach(label => {
+  originalPos[label.id] = {
+    top: label.style.top,
+    left: label.style.left,
+    right: label.style.right,
+    bottom: label.style.bottom,
+    transform: label.style.transform
   };
-  l.addEventListener("click", () => openSection(l));
+
+  label.addEventListener("click", () => openSection(label));
 });
 
+/* ---------- OPEN SECTION ---------- */
 function openSection(label) {
   center.style.display = "none";
 
@@ -189,41 +194,51 @@ function openSection(label) {
   label.style.transform = "translateX(-50%) scale(1.4)";
 
   reader.style.display = "block";
-  loadIndex(sectionMap[label.id]);
-;
+
+  const folder = sectionMap[label.id];
+  if (!folder) {
+    content.innerHTML = "Section not found.";
+    return;
+  }
+
+  loadIndex(folder);
 }
 
-function loadIndex(section) {
+/* ---------- LOAD INDEX.JSON ---------- */
+function loadIndex(folder) {
   content.innerHTML = "Loading...";
-  fetch(`${section}/index.json`)
-    .then(r => r.json())
+
+  fetch(`${folder}/index.json`)
+    .then(res => res.json())
     .then(files => {
       content.innerHTML = "";
-      files.forEach((f, i) => {
-        const d = document.createElement("div");
-        d.className = "file-link";
-        d.textContent = `${i + 1}. ${f}`;
-        d.onclick = () => loadFile(section, f);
-        content.appendChild(d);
+      files.forEach((file, i) => {
+        const div = document.createElement("div");
+        div.className = "file-link";
+        div.textContent = `${i + 1}. ${file}`;
+        div.onclick = () => loadFile(folder, file);
+        content.appendChild(div);
       });
     })
-    .catch(() => content.innerHTML = "No content.");
+    .catch(() => {
+      content.innerHTML = "No content found.";
+    });
 }
 
-function loadFile(section, file) {
-  const ext = file.split('.').pop().toLowerCase();
-  const path = `${section}/${file}`;
+/* ---------- LOAD FILE ---------- */
+function loadFile(folder, file) {
+  const ext = file.split(".").pop().toLowerCase();
+  const path = `${folder}/${file}`;
+
   const isLocal =
     location.hostname === "localhost" ||
     location.hostname === "127.0.0.1" ||
-    location.hostname.endsWith(".local") ||
     location.protocol === "file:";
 
-
   /* TEXT */
-  if (["txt","md"].includes(ext)) {
-    fetch(path).then(r => r.text()).then(t => {
-      content.innerHTML = `<pre>${t}</pre>`;
+  if (["txt", "md"].includes(ext)) {
+    fetch(path).then(r => r.text()).then(text => {
+      content.innerHTML = `<pre>${text}</pre>`;
     });
     return;
   }
@@ -233,10 +248,10 @@ function loadFile(section, file) {
     fetch(path).then(r => r.text()).then(text => {
       const rows = text.split("\n").map(r => r.split(","));
       let html = "<table style='width:100%; border-collapse:collapse;'>";
-      rows.forEach((row,i)=>{
+      rows.forEach((row, i) => {
         html += "<tr>";
-        row.forEach(c=>{
-          html += `<${i===0?"th":"td"} style="border:1px solid rgba(255,255,255,0.2); padding:6px;">${c}</${i===0?"th":"td"}>`;
+        row.forEach(cell => {
+          html += `<${i === 0 ? "th" : "td"} style="border:1px solid rgba(255,255,255,0.2); padding:6px;">${cell}</${i === 0 ? "th" : "td"}>`;
         });
         html += "</tr>";
       });
@@ -247,13 +262,13 @@ function loadFile(section, file) {
   }
 
   /* IMAGES */
-  if (["png","jpg","jpeg","gif","webp"].includes(ext)) {
+  if (["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) {
     content.innerHTML = `<img src="${path}" style="max-width:100%; max-height:80vh;">`;
     return;
   }
 
   /* AUDIO */
-  if (["mp3","wav","ogg"].includes(ext)) {
+  if (["mp3", "wav", "ogg"].includes(ext)) {
     content.innerHTML = `
       <audio controls autoplay style="width:100%;">
         <source src="${path}">
@@ -262,7 +277,7 @@ function loadFile(section, file) {
   }
 
   /* VIDEO */
-  if (["mp4","webm"].includes(ext)) {
+  if (["mp4", "webm"].includes(ext)) {
     content.innerHTML = `
       <video controls autoplay style="max-width:100%; max-height:80vh;">
         <source src="${path}">
@@ -277,7 +292,7 @@ function loadFile(section, file) {
   }
 
   /* OFFICE FILES */
-  if (["doc","docx","xls","xlsx","ppt","pptx"].includes(ext)) {
+  if (["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(ext)) {
     if (isLocal) {
       window.open(path, "_blank");
     } else {
@@ -293,19 +308,15 @@ function loadFile(section, file) {
   window.open(path, "_blank");
 }
 
+/* ---------- BACK BUTTON ---------- */
 back.onclick = () => {
   reader.style.display = "none";
   content.innerHTML = "";
   center.style.display = "block";
 
-  labels.forEach(l => {
-    l.style.display = "block";
-    Object.assign(l.style, originalPos[l.id]);
+  labels.forEach(label => {
+    label.style.display = "block";
+    Object.assign(label.style, originalPos[label.id]);
   });
 };
 </script>
-
-</body>
-</html>
-
-
