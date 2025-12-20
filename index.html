@@ -215,23 +215,30 @@ function openSection(label) {
   loadIndex(folder);
 }
 
+
 /* ---------- LOAD INDEX ---------- */
 function loadIndex(folder) {
   content.innerHTML = "Loading...";
+
   fetch(`${folder}/index.json`)
     .then(r => r.json())
     .then(files => {
       content.innerHTML = "";
-      files.forEach((f, i) => {
+
+      Object.entries(files).forEach(([name, file], i) => {
         const d = document.createElement("div");
         d.className = "file-link";
-        d.textContent = `${i + 1}. ${f}`;
-        d.onclick = () => loadFile(folder, f);
+        d.textContent = `${i + 1}. ${name}`;
+        d.onclick = () => loadFile(folder, file);
         content.appendChild(d);
       });
     })
-    .catch(() => content.innerHTML = "No content found.");
+    .catch(err => {
+      console.error(err);
+      content.innerHTML = "No content found.";
+    });
 }
+
 
 /* ---------- LOAD FILE ---------- */
 function loadFile(folder, file) {
@@ -324,3 +331,4 @@ back.onclick = () => {
 
 </body>
 </html>
+
