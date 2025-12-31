@@ -19,10 +19,17 @@ html, body {
 /* ---------- BACKGROUND IMAGE ---------- */
 #background {
   position: fixed;
-  inset: 0;
-  background: url("background.png") center / cover no-repeat;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("./background1.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 0;
 }
+
 
 /* ---------- LIGHTNING CANVAS ---------- */
 #lightning {
@@ -307,4 +314,5 @@ back.onclick = () => {
 
 </body>
 </html>
+
 
