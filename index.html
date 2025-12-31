@@ -226,8 +226,7 @@ function lightningStrike() {
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.12)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   /* slower speed */
   if (Math.random() < 0.04) lightningStrike();
@@ -308,3 +307,4 @@ back.onclick = () => {
 
 </body>
 </html>
+
