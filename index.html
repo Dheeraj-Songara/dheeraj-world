@@ -354,6 +354,28 @@ function loadIndex(section) {
 }
 
 function loadFile(section, file) {
+  // handle external URLs
+  if (file.startsWith('http://') || file.startsWith('https://')) {
+    const ytMatch = file.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) {
+      const videoId = ytMatch[1];
+      readerContent.innerHTML = `
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+          <iframe src="https://www.youtube.com/embed/${videoId}"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+            allow="autoplay;encrypted-media" allowfullscreen></iframe>
+        </div>`;
+      return;
+    }
+    // Spotify
+    const spotifyMatch = file.match(/spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/);
+    if (spotifyMatch) {
+      readerContent.innerHTML = `<iframe src="https://open.spotify.com/embed/${spotifyMatch[1]}/${spotifyMatch[2]}" width="100%" height="380" frameborder="0" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture"></iframe>`;
+      return;
+    }
+    window.open(file, '_blank');
+    return;
+  }
   const ext = file.split('.').pop().toLowerCase();
   const path = `${section}/${file}`;
   const isLocal = ['localhost','127.0.0.1'].includes(location.hostname)
