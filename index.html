@@ -399,7 +399,7 @@ function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
 function buildNetwork(count){
   neurons=[];synapses=[];
   const pad=80;
-  const pts=poissonDisc(W-pad*2,H-pad*2,60,[]);
+  const pts=poissonDisc(W-pad*2,H-pad*2,60,[]); 
   for(let i=0;i<Math.min(count,pts.length);i++)
     neurons.push(new Neuron(pts[i].x+pad,pts[i].y+pad));
   // Fallback with minimum spacing check
@@ -532,7 +532,7 @@ function resetAll(){
   cancelAnimationFrame(animId);
   trainMode=false;trainSeq=[];replayMode=false;replayTOs.forEach(clearTimeout);replayTOs=[];
   globalLeak=0;updateTrainBtn();setStatus('');
-  buildNetwork(100);paused=false;document.getElementById('btn-pause').textContent='PAUSE';loop();
+  buildNetwork(150);paused=false;document.getElementById('btn-pause').textContent='PAUSE';loop();
 }
 
 /* ══ STATS ══ */
@@ -595,7 +595,7 @@ canvas.addEventListener('click',e=>{
 });
 
 window.addEventListener('resize',()=>{resize();buildSynapses();});
-resize();buildNetwork(100);
+resize();buildNetwork(150);
 setTimeout(()=>{for(let i=0;i<5;i++)setTimeout(stimulateRandom,i*180);},400);
 loop();
 </script>
