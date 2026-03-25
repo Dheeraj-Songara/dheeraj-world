@@ -532,7 +532,7 @@ function resetAll(){
   cancelAnimationFrame(animId);
   trainMode=false;trainSeq=[];replayMode=false;replayTOs.forEach(clearTimeout);replayTOs=[];
   globalLeak=0;updateTrainBtn();setStatus('');
-  buildNetwork(150);paused=false;document.getElementById('btn-pause').textContent='PAUSE';loop();
+  buildNetwork(200);paused=false;document.getElementById('btn-pause').textContent='PAUSE';loop();
 }
 
 /* ══ STATS ══ */
@@ -595,7 +595,7 @@ canvas.addEventListener('click',e=>{
 });
 
 window.addEventListener('resize',()=>{resize();buildSynapses();});
-resize();buildNetwork(150);
+resize();buildNetwork(200);
 setTimeout(()=>{for(let i=0;i<5;i++)setTimeout(stimulateRandom,i*180);},400);
 loop();
 </script>
