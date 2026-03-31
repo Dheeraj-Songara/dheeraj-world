@@ -1,33 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Homepage -->
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/</loc>
   </url>
 
-  <!-- Blogs -->
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/Blogs/Interview.txt</loc>
   </url>
+
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/Blogs/Trains.txt</loc>
   </url>
 
-  <!-- Poetry -->
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/Poetry/Chehre.txt</loc>
   </url>
+
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/Poetry/Helplessness.txt</loc>
   </url>
+
   <url>
     <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/Poetry/Maa.txt</loc>
-  </url>
-
-  <!-- About (optional) -->
-  <url>
-    <loc>https://dheeraj-songara.github.io/Dheeraj_Ensembles/About/Dheeraj_cv_updated.pdf</loc>
   </url>
 
 </urlset>
